@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MERN 6-Month Study Planner</title>
+    <meta
+      name="description"
+      content="A personal productivity dashboard for a 24-week MERN learning roadmap."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-dot" aria-hidden="true"></div>
+        <div>
+          <h1>MERN 6-Month Study Planner</h1>
+          <p>Personal productivity dashboard</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="goToTodayBtn" class="btn btn-secondary" type="button">Go To Today</button>
+        <button id="exportBtn" class="btn btn-secondary" type="button">Export JSON</button>
+        <label for="importInput" class="btn btn-secondary import-label">Import JSON</label>
+        <input id="importInput" type="file" accept="application/json" hidden />
+        <button id="darkModeBtn" class="btn btn-primary" type="button" aria-pressed="false">
+          Dark Mode
+        </button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="quote-card card">
+        <h2>Motivational quote of the day</h2>
+        <p id="quoteText">Loading quote...</p>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="card stat-card">
+          <h3>Progress</h3>
+          <p id="progressCount" class="stat-value">0 / 144</p>
+          <small>Study days completed</small>
+        </article>
+        <article class="card stat-card">
+          <h3>Remaining days</h3>
+          <p id="remainingCount" class="stat-value">144</p>
+          <small>Days left to finish roadmap</small>
+        </article>
+        <article class="card stat-card">
+          <h3>Completion</h3>
+          <p id="completionPct" class="stat-value">0%</p>
+          <small>Overall percentage</small>
+        </article>
+        <article class="card stat-card">
+          <h3>Current streak</h3>
+          <p id="currentStreak" class="stat-value">0</p>
+          <small>Consecutive completed days</small>
+        </article>
+        <article class="card stat-card">
+          <h3>Longest streak</h3>
+          <p id="longestStreak" class="stat-value">0</p>
+          <small>Personal best</small>
+        </article>
+        <article class="card stat-card">
+          <h3>Current week</h3>
+          <p id="currentWeek" class="stat-value">Week 1</p>
+          <small>Based on start date 2026-01-01</small>
+        </article>
+        <article class="card stat-card highlight">
+          <h3>Next milestone</h3>
+          <p id="nextMilestone" class="stat-value">Day 14</p>
+          <small id="nextMilestoneLabel">Profile Website</small>
+        </article>
+      </section>
+
+      <section class="card progress-card">
+        <div class="progress-head">
+          <h2>Roadmap Progress</h2>
+          <span id="saveIndicator" aria-live="polite">All changes saved</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="144" aria-valuenow="0">
+          <div id="progressBar" class="progress-fill"></div>
+        </div>
+      </section>
+
+      <section class="card heatmap-card">
+        <div class="heatmap-head">
+          <h2>Study Heatmap</h2>
+          <div class="legend">
+            <span><i class="legend-box not-started"></i> Not started</span>
+            <span><i class="legend-box completed"></i> Completed</span>
+            <span><i class="legend-box milestone"></i> Milestone done</span>
+          </div>
+        </div>
+        <div id="heatmap" class="heatmap-grid"></div>
+      </section>
+
+      <section>
+        <h2 class="section-title">Weekly Study Planner</h2>
+        <div id="weeksContainer" class="weeks-container"></div>
+      </section>
+    </main>
+
+    <template id="studyRowTemplate">
+      <div class="study-row">
+        <div class="day-meta">
+          <span class="day-number"></span>
+          <span class="today-badge" hidden>Today</span>
+        </div>
+        <label class="checkbox-wrap">
+          <input type="checkbox" class="day-checkbox" />
+          <span>Done</span>
+        </label>
+        <div class="topic-wrap">
+          <span class="topic-label">Topic</span>
+          <p class="topic-text"></p>
+        </div>
+        <label class="notes-wrap">
+          <span>Notes</span>
+          <textarea class="day-notes" rows="2" placeholder="Write short notes for this study day..."></textarea>
+        </label>
+      </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
