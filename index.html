@@ -71,7 +71,7 @@
         <article class="card stat-card">
           <h3>Current week</h3>
           <p id="currentWeek" class="stat-value">Week 1</p>
-          <small>Based on start date 2026-01-01</small>
+          <small>Based on completed study days</small>
         </article>
         <article class="card stat-card highlight">
           <h3>Next milestone</h3>
@@ -102,8 +102,19 @@
         <div id="heatmap" class="heatmap-grid"></div>
       </section>
 
+      <section class="card chart-card">
+        <h2>Weekly Study Progress</h2>
+        <p class="chart-subtitle">Completed study days per week (0–6)</p>
+        <div id="weeklyChart" class="weekly-chart" aria-label="Weekly progress chart"></div>
+      </section>
+
       <section>
-        <h2 class="section-title">Weekly Study Planner</h2>
+        <div class="planner-head">
+          <h2 class="section-title">Weekly Study Planner</h2>
+          <button id="toggleAllWeeksBtn" class="btn btn-secondary" type="button">
+            Expand All Weeks
+          </button>
+        </div>
         <div id="weeksContainer" class="weeks-container"></div>
       </section>
     </main>

@@ -74,6 +74,8 @@ const elements = {
   saveIndicator: document.getElementById("saveIndicator"),
   quoteText: document.getElementById("quoteText"),
   studyRowTemplate: document.getElementById("studyRowTemplate"),
+  weeklyChart: document.getElementById("weeklyChart"),
+  toggleAllWeeksBtn: document.getElementById("toggleAllWeeksBtn"),
 };
 
 init();
@@ -84,8 +86,10 @@ function init() {
   renderQuoteOfTheDay();
   renderPlanner();
   renderHeatmap();
+  renderWeeklyChart();
   updateDashboard();
   bindGlobalEvents();
+  updateToggleAllButtonLabel();
 }
 
 function renderQuoteOfTheDay() {
@@ -109,7 +113,10 @@ function renderPlanner() {
     header.className = "week-header";
     const weekStart = (week - 1) * STUDY_DAYS_PER_WEEK + 1;
     const weekEnd = week * STUDY_DAYS_PER_WEEK;
-    header.innerHTML = `<span>Week ${week}</span><span>Day ${weekStart} - Day ${weekEnd}</span>`;
+    header.innerHTML = `
+      <span class="week-title"><span class="week-arrow">▶</span> Week ${week}</span>
+      <span>Day ${weekStart} - Day ${weekEnd}</span>
+    `;
 
     header.addEventListener("click", () => {
       state.collapsedWeeks[week] = !state.collapsedWeeks[week];
@@ -133,6 +140,8 @@ function renderPlanner() {
     weekCard.append(header, body);
     elements.weeksContainer.appendChild(weekCard);
   }
+
+  updateToggleAllButtonLabel();
 }
 
 function buildDayRow(dayInfo, dayNumber, todayStudyDay) {
@@ -172,6 +181,7 @@ function buildDayRow(dayInfo, dayNumber, todayStudyDay) {
     recalculateStreaks();
     updateDashboard();
     renderHeatmap();
+    renderWeeklyChart();
 
     if (dayInfo.completed && milestones[dayNumber]) {
       fireMilestoneConfetti();
@@ -254,11 +264,35 @@ function renderHeatmap() {
   }
 }
 
+// Weekly chart is a simple HTML/CSS bar chart with one bar per week.
+function renderWeeklyChart() {
+  elements.weeklyChart.innerHTML = "";
+
+  for (let week = 1; week <= TOTAL_WEEKS; week += 1) {
+    const completed = getCompletedDaysInWeek(week);
+    const wrap = document.createElement("div");
+    wrap.className = "week-bar-wrap";
+
+    const bar = document.createElement("div");
+    bar.className = "week-bar";
+    // Max height is 100px for 6 completed study days.
+    bar.style.height = `${(completed / STUDY_DAYS_PER_WEEK) * 100}px`;
+    bar.title = `Week ${week}: ${completed}/${STUDY_DAYS_PER_WEEK} study days completed`;
+
+    const label = document.createElement("span");
+    label.className = "week-bar-label";
+    label.textContent = String(week);
+
+    wrap.append(bar, label);
+    elements.weeklyChart.appendChild(wrap);
+  }
+}
+
 function updateDashboard() {
   const completed = countCompletedDays();
   const remaining = TOTAL_DAYS - completed;
   const percent = Math.round((completed / TOTAL_DAYS) * 100);
-  const todayStudyDay = getTodayStudyDayNumber();
+  const weekFromProgress = getCurrentWeekFromProgress();
 
   recalculateStreaks();
 
@@ -267,7 +301,7 @@ function updateDashboard() {
   elements.completionPct.textContent = `${percent}%`;
   elements.currentStreak.textContent = String(state.streak.current);
   elements.longestStreak.textContent = String(state.streak.longest);
-  elements.currentWeek.textContent = `Week ${Math.min(Math.max(Math.ceil(todayStudyDay / STUDY_DAYS_PER_WEEK), 1), TOTAL_WEEKS)}`;
+  elements.currentWeek.textContent = `Week ${weekFromProgress}`;
   elements.progressBar.style.width = `${percent}%`;
   document
     .querySelector(".progress-track")
@@ -320,6 +354,19 @@ function bindGlobalEvents() {
 
   elements.exportBtn.addEventListener("click", exportJSON);
 
+  elements.toggleAllWeeksBtn.addEventListener("click", () => {
+    const currentlyAllCollapsed = areAllWeeksCollapsed();
+
+    // If all are collapsed, expand all. Otherwise collapse all.
+    for (let week = 1; week <= TOTAL_WEEKS; week += 1) {
+      state.collapsedWeeks[week] = !currentlyAllCollapsed;
+    }
+
+    saveState();
+    updateToggleAllButtonLabel();
+    renderPlanner();
+  });
+
   elements.importInput.addEventListener("change", (event) => {
     const [file] = event.target.files;
     if (!file) return;
@@ -334,11 +381,14 @@ function bindGlobalEvents() {
         }
 
         state = parsed;
+        initializeCollapsedWeeks();
         saveState();
         applyTheme();
         renderPlanner();
         renderHeatmap();
+        renderWeeklyChart();
         updateDashboard();
+        updateToggleAllButtonLabel();
         showSaved("Import successful");
       } catch {
         alert("Could not parse JSON file.");
@@ -387,6 +437,8 @@ function loadState() {
       };
     }
   }
+
+  initializeCollapsedWeeks();
 }
 
 function saveState() {
@@ -407,6 +459,52 @@ function getTodayStudyDayNumber() {
   if (diff < 0) return 1;
   if (diff >= TOTAL_DAYS) return TOTAL_DAYS;
   return diff + 1;
+}
+
+// Current week is based on completed study days, not calendar date.
+function getCurrentWeekFromProgress() {
+  const completedDays = countCompletedDays();
+  const rawWeek = Math.floor(completedDays / STUDY_DAYS_PER_WEEK) + 1;
+  return Math.min(Math.max(rawWeek, 1), TOTAL_WEEKS);
+}
+
+function getCompletedDaysInWeek(week) {
+  let completed = 0;
+  const start = (week - 1) * STUDY_DAYS_PER_WEEK + 1;
+  const end = week * STUDY_DAYS_PER_WEEK;
+
+  for (let day = start; day <= end; day += 1) {
+    if (getDay(day).completed) completed += 1;
+  }
+
+  return completed;
+}
+
+// By default all weeks are collapsed except the current progress week.
+function initializeCollapsedWeeks() {
+  const keys = Object.keys(state.collapsedWeeks);
+  const hasAllWeekKeys = keys.length === TOTAL_WEEKS;
+  if (hasAllWeekKeys) return;
+
+  const currentWeek = getCurrentWeekFromProgress();
+  for (let week = 1; week <= TOTAL_WEEKS; week += 1) {
+    state.collapsedWeeks[week] = week !== currentWeek;
+  }
+
+  saveState();
+}
+
+function areAllWeeksCollapsed() {
+  for (let week = 1; week <= TOTAL_WEEKS; week += 1) {
+    if (!state.collapsedWeeks[week]) return false;
+  }
+  return true;
+}
+
+function updateToggleAllButtonLabel() {
+  elements.toggleAllWeeksBtn.textContent = areAllWeeksCollapsed()
+    ? "Expand All Weeks"
+    : "Collapse All Weeks";
 }
 
 function getNextMilestone(completed) {
