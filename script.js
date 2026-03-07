@@ -375,6 +375,8 @@ function buildDayRow(dayInfo, dayNumber, todayStudyDay) {
   const fragment = elements.studyRowTemplate.content.cloneNode(true);
   const row = fragment.querySelector(".study-row");
   row.dataset.dayNumber = dayNumber;
+  // Keep a simple data-day attribute for direct day-based queries.
+  row.dataset.day = dayNumber;
 
   const dayNumberEl = fragment.querySelector(".day-number");
   const todayBadge = fragment.querySelector(".today-badge");
@@ -571,11 +573,21 @@ function bindGlobalEvents() {
   });
 
   elements.goToTodayBtn.addEventListener("click", () => {
-    const todayRow = document.getElementById("todayRow");
+    // 1) Get today's study day number from shared helper.
+    const todayDay = getTodayStudyDayNumber();
+
+    // 2) Expand the week first (if collapsed), then re-render so the row is visible.
+    const todayWeek = Math.ceil(todayDay / STUDY_DAYS_PER_WEEK);
+    if (state.collapsedWeeks[todayWeek]) {
+      state.collapsedWeeks[todayWeek] = false;
+      saveState();
+      renderPlanner();
+    }
+
+    // 3) Find the row by data-day and smoothly scroll to it.
+    const todayRow = document.querySelector(`[data-day="${todayDay}"]`);
     if (todayRow) {
       todayRow.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else {
-      alert("Today is outside the 24-week schedule range.");
     }
   });
 
