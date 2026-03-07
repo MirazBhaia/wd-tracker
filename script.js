@@ -17,8 +17,225 @@ const milestones = {
   144: "Portfolio Website",
 };
 
-// Simple topic generator keeps content beginner-friendly and deterministic.
-const topicTracks = [
+// Full 24-week roadmap (6 topics per week = 144 study days).
+// Topics are intentionally unique and progress from fundamentals to advanced MERN.
+const weeklyRoadmap = [
+  // Weeks 1-2: HTML + CSS fundamentals
+  [
+    "Internet basics and how websites work",
+    "HTML document structure and semantic tags",
+    "Links, images, lists, and tables",
+    "Forms, inputs, labels, and validation basics",
+    "CSS syntax, selectors, and the cascade",
+    "Colors, spacing, fonts, and typography basics",
+  ],
+  [
+    "CSS box model in detail",
+    "Display, positioning, and z-index",
+    "Flexbox fundamentals",
+    "CSS Grid fundamentals",
+    "Building a multi-section static webpage",
+    "Mini project: personal profile website",
+  ],
+
+  // Weeks 3-4: advanced CSS + responsive design
+  [
+    "Advanced selectors and pseudo-classes",
+    "Pseudo-elements and reusable UI patterns",
+    "CSS transitions and basic animations",
+    "Transform and keyframe animation practice",
+    "Responsive design principles",
+    "Media queries for mobile, tablet, desktop",
+  ],
+  [
+    "Mobile-first layout strategy",
+    "Responsive navbar and card layouts",
+    "Accessible color contrast and spacing",
+    "CSS variables for theme systems",
+    "Mini project: responsive landing page",
+    "Refactor styles for maintainability",
+  ],
+
+  // Weeks 5-6: JavaScript fundamentals
+  [
+    "JavaScript syntax and variables",
+    "Data types and operators",
+    "Conditionals and switch statements",
+    "Loops and iteration patterns",
+    "Functions, parameters, and return values",
+    "Scope and hoisting basics",
+  ],
+  [
+    "Arrays and common array methods",
+    "Objects and property access",
+    "Template literals and string methods",
+    "ES6 destructuring and spread",
+    "Error handling basics with try/catch",
+    "Mini project: JavaScript calculator",
+  ],
+
+  // Weeks 7-8: DOM + browser APIs
+  [
+    "DOM tree fundamentals",
+    "Selecting elements with query selectors",
+    "Reading and updating text/content",
+    "Working with classes and styles via JS",
+    "Creating/removing elements dynamically",
+    "Event listeners and event object basics",
+  ],
+  [
+    "Form handling with JavaScript",
+    "Keyboard and mouse events",
+    "LocalStorage fundamentals",
+    "Date and time in JavaScript",
+    "Mini project: JavaScript todo app",
+    "Refactor todo app with reusable functions",
+  ],
+
+  // Weeks 9-10: Git + workflow
+  [
+    "Git basics: init, add, commit",
+    "Branching and merging basics",
+    "Resolving merge conflicts",
+    "GitHub repositories and remotes",
+    "Pull requests and code review workflow",
+    "Writing clear commit messages",
+  ],
+  [
+    "README and project documentation",
+    "Issue tracking and task planning",
+    "Debugging workflow and browser devtools",
+    "Using npm and package.json",
+    "Mini project: team-style feature branch workflow",
+    "Polish existing projects with better structure",
+  ],
+
+  // Weeks 11-14: React fundamentals + hooks
+  [
+    "React overview and component mindset",
+    "JSX syntax and rendering",
+    "Function components and props",
+    "Component composition patterns",
+    "Local component state with useState",
+    "Handling events in React",
+  ],
+  [
+    "Rendering lists and keys",
+    "Controlled components and forms",
+    "Conditional rendering patterns",
+    "Lifting state up",
+    "Mini project: React todo app setup",
+    "Enhance React todo app with filters",
+  ],
+  [
+    "useEffect fundamentals",
+    "Effect cleanup and dependencies",
+    "Fetching APIs in React",
+    "Loading and error UI states",
+    "React folder structure best practices",
+    "Reusable custom hooks basics",
+  ],
+  [
+    "React Router fundamentals",
+    "Nested routes and navigation",
+    "Global state with Context API",
+    "Performance basics with memoization",
+    "Mini project: multi-page React app",
+    "React app cleanup and deployment prep",
+  ],
+
+  // Weeks 15-18: Node.js + Express
+  [
+    "Node.js runtime and modules",
+    "CommonJS vs ES modules",
+    "npm scripts and environment setup",
+    "Building a basic HTTP server",
+    "Express setup and routing",
+    "Route params and query strings",
+  ],
+  [
+    "Express middleware concept",
+    "Request body parsing and validation",
+    "REST API design basics",
+    "HTTP status codes and responses",
+    "Postman or REST client testing",
+    "Mini project: Express CRUD API",
+  ],
+  [
+    "Authentication concepts and sessions",
+    "JWT basics for APIs",
+    "Password hashing with bcrypt",
+    "Protected routes and authorization",
+    "Error handling middleware",
+    "API structure with controllers/services",
+  ],
+  [
+    "Environment variables and config",
+    "Logging and monitoring basics",
+    "Security basics (CORS, helmet, rate limit)",
+    "File uploads and static assets",
+    "API versioning strategy",
+    "Mini project: production-ready REST API",
+  ],
+
+  // Weeks 19-21: MongoDB + integration
+  [
+    "Database concepts and NoSQL basics",
+    "MongoDB documents and collections",
+    "CRUD operations in MongoDB",
+    "Mongoose models and schemas",
+    "Validation in Mongoose",
+    "Connecting Node API to MongoDB",
+  ],
+  [
+    "Relationships and data modeling",
+    "Populate and references",
+    "Indexing basics and query performance",
+    "Aggregation pipeline basics",
+    "Pagination and filtering",
+    "Mini project: API with MongoDB integration",
+  ],
+  [
+    "Transactions and consistency basics",
+    "Data migration patterns",
+    "Backup and restore basics",
+    "Designing scalable schema patterns",
+    "Testing DB-backed API endpoints",
+    "Refactor backend with better data layer",
+  ],
+
+  // Weeks 22-23: full MERN projects
+  [
+    "Plan full MERN project requirements",
+    "Set up monorepo or fullstack structure",
+    "Connect React frontend to Express API",
+    "Implement auth flow frontend + backend",
+    "Build core features for MERN todo app",
+    "Integrate validations and error states",
+  ],
+  [
+    "Build MERN blog content models",
+    "Create CRUD pages for posts",
+    "Add comments and user interactions",
+    "Optimize UX and loading states",
+    "Prepare production build and deployment",
+    "Mini project: deploy full MERN app",
+  ],
+
+  // Week 24: portfolio + deployment
+  [
+    "Select and review best projects",
+    "Write clear project case studies",
+    "Build portfolio website structure",
+    "Add polished UI and responsive design",
+    "Deploy portfolio and custom domain setup",
+    "Final review and 6-month retrospective",
+  ],
+];
+
+// Legacy topics from the first version. We use this list to safely migrate old auto-generated
+// topics to the new full roadmap while keeping user notes/completion data intact.
+const legacyTopicTracks = [
   "HTML fundamentals",
   "CSS layout & flex/grid",
   "JavaScript basics",
@@ -81,6 +298,7 @@ const elements = {
 init();
 
 function init() {
+  validateRoadmapShape();
   loadState();
   applyTheme();
   renderQuoteOfTheDay();
@@ -90,6 +308,15 @@ function init() {
   updateDashboard();
   bindGlobalEvents();
   updateToggleAllButtonLabel();
+}
+
+function validateRoadmapShape() {
+  const has24Weeks = weeklyRoadmap.length === TOTAL_WEEKS;
+  const eachWeekHas6Days = weeklyRoadmap.every((weekTopics) => weekTopics.length === STUDY_DAYS_PER_WEEK);
+
+  if (!has24Weeks || !eachWeekHas6Days) {
+    throw new Error("Roadmap must have 24 weeks with 6 topics each.");
+  }
 }
 
 function renderQuoteOfTheDay() {
@@ -429,12 +656,20 @@ function loadState() {
   }
 
   for (let day = 1; day <= TOTAL_DAYS; day += 1) {
+    const roadmapTopic = getRoadmapTopicForDay(day);
+
     if (!state.days[day]) {
       state.days[day] = {
-        topic: `Week ${Math.ceil(day / 6)}: ${topicTracks[(day - 1) % topicTracks.length]}`,
+        topic: roadmapTopic,
         completed: false,
         notes: "",
       };
+      continue;
+    }
+
+    // Migrate old auto-generated repeating topics to the new full roadmap topics.
+    if (isLegacyGeneratedTopic(state.days[day].topic, day)) {
+      state.days[day].topic = roadmapTopic;
     }
   }
 
@@ -466,6 +701,21 @@ function getCurrentWeekFromProgress() {
   const completedDays = countCompletedDays();
   const rawWeek = Math.floor(completedDays / STUDY_DAYS_PER_WEEK) + 1;
   return Math.min(Math.max(rawWeek, 1), TOTAL_WEEKS);
+}
+
+function getRoadmapTopicForDay(dayNumber) {
+  const weekIndex = Math.floor((dayNumber - 1) / STUDY_DAYS_PER_WEEK);
+  const dayIndex = (dayNumber - 1) % STUDY_DAYS_PER_WEEK;
+  return weeklyRoadmap[weekIndex][dayIndex];
+}
+
+function isLegacyGeneratedTopic(topic, dayNumber) {
+  const weekNumber = Math.ceil(dayNumber / STUDY_DAYS_PER_WEEK);
+  const expectedLegacyPrefix = `Week ${weekNumber}: `;
+
+  if (!topic.startsWith(expectedLegacyPrefix)) return false;
+
+  return legacyTopicTracks.some((legacyTopic) => topic === `${expectedLegacyPrefix}${legacyTopic}`);
 }
 
 function getCompletedDaysInWeek(week) {
