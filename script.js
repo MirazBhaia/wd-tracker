@@ -3,19 +3,19 @@ const STUDY_DAYS_PER_WEEK = 6;
 const TOTAL_DAYS = TOTAL_WEEKS * STUDY_DAYS_PER_WEEK;
 const START_DATE = new Date("2026-01-01T00:00:00");
 
-// Milestones map day number -> project name.
-const milestones = {
-  14: "HTML + CSS Basics Checkpoint",
-  28: "Bootstrap Foundations Checkpoint",
-  42: "JavaScript Fundamentals Checkpoint",
-  54: "DOM + Events Checkpoint",
-  72: "Loops, Functions, Arrays Checkpoint",
-  90: "Objects + Advanced JavaScript Checkpoint",
-  108: "React Fundamentals Checkpoint",
-  126: "Node + Express + MongoDB Checkpoint",
-  138: "MERN Project Milestone",
-  144: "Final MERN Capstone + Deployment",
-};
+// Milestones are topic-based (not hardcoded day numbers).
+// A day is treated as a milestone when its topic text matches one of these project stages.
+const milestoneStages = [
+  { label: "HTML landing page project", pattern: /html\s+landing\s+page\s+project/i },
+  { label: "Responsive CSS layout project", pattern: /responsive\s+css\s+layout\s+project/i },
+  { label: "JavaScript mini app", pattern: /javascript\s+mini\s+app\s+project/i },
+  { label: "JavaScript Todo app", pattern: /javascript\s+todo\s+app\s+project/i },
+  { label: "React project", pattern: /react\s+project/i },
+  { label: "Node + Express REST API", pattern: /node\s*\+\s*express\s+rest\s+api\s+project/i },
+  { label: "MongoDB integration project", pattern: /mongodb\s+integration\s+project/i },
+  { label: "Full MERN stack project", pattern: /full\s+mern\s+stack\s+project/i },
+  { label: "Portfolio website (final milestone)", pattern: /portfolio\s+website\s+\(final\s+milestone\)/i },
+];
 
 // Full 24-week roadmap (6 topics per week = 144 study days).
 // This follows the requested Udemy-style section order:
@@ -37,7 +37,7 @@ const weeklyRoadmap = [
     "Semantic layout tags: header, nav, main, section, footer",
     "HTML accessibility basics (labels, alt, landmarks)",
     "HTML best practices and clean structure",
-    "Build a complete multi-section HTML page",
+    "HTML landing page project",
     "HTML recap and section quiz practice",
   ],
 
@@ -56,7 +56,7 @@ const weeklyRoadmap = [
     "Pseudo-classes and pseudo-elements",
     "Transitions, transforms, and animations",
     "Responsive design with media queries",
-    "CSS layout practice and recap",
+    "Responsive CSS layout project",
   ],
 
   // Weeks 5-6: Bootstrap
@@ -91,7 +91,7 @@ const weeklyRoadmap = [
     "Intro to debugging with console and breakpoints",
     "JavaScript coding style and clean code basics",
     "Practice problems for conditionals and operators",
-    "Mini JavaScript challenge set",
+    "JavaScript mini app project",
     "JavaScript fundamentals recap",
   ],
 
@@ -110,7 +110,7 @@ const weeklyRoadmap = [
     "Keyboard and form submit events",
     "Event bubbling, capturing, and delegation",
     "Default browser behavior and preventDefault",
-    "DOM + Events recap exercise",
+    "JavaScript Todo app project",
   ],
 
   // Weeks 11-14: Loops, Functions, Arrays, Objects
@@ -168,7 +168,7 @@ const weeklyRoadmap = [
     "Forms in React (controlled components)",
     "useEffect and side effects",
     "Fetching data in React",
-    "React hooks practice project",
+    "React project",
     "Component folder organization",
     "React fundamentals recap",
   ],
@@ -196,14 +196,14 @@ const weeklyRoadmap = [
     "Middleware fundamentals",
     "REST API basics with Express",
     "Request validation and error handling",
-    "Build Express CRUD endpoints",
+    "Node + Express REST API project",
   ],
   [
     "MongoDB basics and NoSQL concepts",
     "Collections, documents, and CRUD",
     "Mongoose schemas and models",
     "Mongoose validations and hooks",
-    "Connect Express API to MongoDB",
+    "MongoDB integration project",
     "Node + Express + MongoDB recap",
   ],
 
@@ -222,7 +222,7 @@ const weeklyRoadmap = [
     "MERN project: search, filter, and pagination",
     "MERN project: state management refinement",
     "MERN project: testing and bug fixing",
-    "MERN project milestone review",
+    "Full MERN stack project",
   ],
   [
     "MERN capstone planning and scope",
@@ -230,7 +230,7 @@ const weeklyRoadmap = [
     "Build capstone backend APIs",
     "Integrate MongoDB and deployment configs",
     "Deploy MERN capstone and final QA",
-    "Course completion review and next steps",
+    "Portfolio website (final milestone)",
   ],
 ];
 
@@ -386,10 +386,11 @@ function buildDayRow(dayInfo, dayNumber, todayStudyDay) {
   const notes = fragment.querySelector(".day-notes");
 
   dayNumberEl.textContent = `Day ${dayNumber}`;
-  if (milestones[dayNumber]) {
+  const milestoneLabel = getMilestoneLabelForDay(dayNumber);
+  if (milestoneLabel) {
     const milestoneTag = document.createElement("span");
     milestoneTag.className = "milestone-tag";
-    milestoneTag.innerHTML = `<span class="star">★</span> ${milestones[dayNumber]}`;
+    milestoneTag.innerHTML = `<span class="star">★</span> ${milestoneLabel}`;
     dayNumberEl.appendChild(milestoneTag);
     row.classList.add("milestone-row");
   }
@@ -413,7 +414,7 @@ function buildDayRow(dayInfo, dayNumber, todayStudyDay) {
     renderHeatmap();
     renderWeeklyChart();
 
-    if (dayInfo.completed && milestones[dayNumber]) {
+    if (dayInfo.completed && milestoneLabel) {
       fireMilestoneConfetti();
     }
   });
@@ -486,7 +487,7 @@ function renderHeatmap() {
     cell.className = "heat-cell";
 
     if (dayData.completed) {
-      cell.classList.add(milestones[day] ? "milestone" : "completed");
+      cell.classList.add(getMilestoneLabelForDay(day) ? "milestone" : "completed");
     }
 
     cell.title = `Day ${day} • ${dayData.topic} • ${dayData.completed ? "Completed" : "Not completed"}`;
@@ -537,7 +538,7 @@ function updateDashboard() {
     .querySelector(".progress-track")
     .setAttribute("aria-valuenow", String(completed));
 
-  const next = getNextMilestone(completed);
+  const next = getNextMilestone();
   elements.nextMilestone.textContent = next ? `Day ${next.day}` : "All done 🎉";
   elements.nextMilestoneLabel.textContent = next ? next.label : "Every milestone completed";
 }
@@ -574,21 +575,21 @@ function bindGlobalEvents() {
   });
 
   elements.goToTodayBtn.addEventListener("click", () => {
-    // 1) Get today's study day number from shared helper.
-    const todayDay = getTodayStudyDayNumber();
+    // "Go To Today" now means "Go to next study target": first incomplete day.
+    const targetDay = getFirstIncompleteStudyDay();
 
-    // 2) Expand the week first (if collapsed), then re-render so the row is visible.
-    const todayWeek = Math.ceil(todayDay / STUDY_DAYS_PER_WEEK);
-    if (state.collapsedWeeks[todayWeek]) {
-      state.collapsedWeeks[todayWeek] = false;
+    // Expand target week first (if collapsed), then re-render so row exists in the DOM.
+    const targetWeek = Math.ceil(targetDay / STUDY_DAYS_PER_WEEK);
+    if (state.collapsedWeeks[targetWeek]) {
+      state.collapsedWeeks[targetWeek] = false;
       saveState();
       renderPlanner();
     }
 
-    // 3) Find the row by data-day and smoothly scroll to it.
-    const todayRow = document.querySelector(`[data-day="${todayDay}"]`);
-    if (todayRow) {
-      todayRow.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Find row by data-day and scroll smoothly.
+    const targetRow = document.querySelector(`[data-day="${targetDay}"]`);
+    if (targetRow) {
+      targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   });
 
@@ -709,6 +710,27 @@ function getTodayStudyDayNumber() {
   return diff + 1;
 }
 
+function getFirstIncompleteStudyDay() {
+  for (let day = 1; day <= TOTAL_DAYS; day += 1) {
+    if (!getDay(day).completed) return day;
+  }
+
+  // If all study days are completed, jump to the final day.
+  return TOTAL_DAYS;
+}
+
+function getMilestoneLabelForTopic(topic) {
+  for (const stage of milestoneStages) {
+    if (stage.pattern.test(topic)) return stage.label;
+  }
+
+  return null;
+}
+
+function getMilestoneLabelForDay(dayNumber) {
+  return getMilestoneLabelForTopic(getDay(dayNumber).topic);
+}
+
 // Current week is based on completed study days, not calendar date.
 function getCurrentWeekFromProgress() {
   const completedDays = countCompletedDays();
@@ -770,11 +792,15 @@ function updateToggleAllButtonLabel() {
     : "Collapse All Weeks";
 }
 
-function getNextMilestone(completed) {
-  return Object.entries(milestones)
-    .map(([day, label]) => ({ day: Number(day), label }))
-    .sort((a, b) => a.day - b.day)
-    .find((entry) => entry.day > completed);
+function getNextMilestone() {
+  for (let day = 1; day <= TOTAL_DAYS; day += 1) {
+    const label = getMilestoneLabelForDay(day);
+    if (label && !getDay(day).completed) {
+      return { day, label };
+    }
+  }
+
+  return null;
 }
 
 function fireMilestoneConfetti() {
